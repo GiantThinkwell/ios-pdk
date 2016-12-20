@@ -9,7 +9,7 @@
 #import "PDKResponseObject.h"
 #import "PDKUser.h"
 
-#import <SSKeychain/SSKeychain.h>
+#import <SAMKeychain/SAMKeychain.h>
 @import UIKit;
 @import SafariServices;
 
@@ -157,13 +157,13 @@ static NSString * const kPDKPinterestWebOAuthURLString = @"https://api.pinterest
     __weak PDKClient *weakSelf = self;
     
     // Check to see if we have a saved token and that the permissions are valid
-    NSString *cachedToken = [SSKeychain passwordForService:PDKPinterestSDK account:PDKPinterestSDKUsername];
+    NSString *cachedToken = [SAMKeychain passwordForService:PDKPinterestSDK account:PDKPinterestSDKUsername];
     NSArray *cachedPermissions = [[NSUserDefaults standardUserDefaults] objectForKey:PDKPinterestSDKPermissionsKey];
     if (cachedToken && cachedPermissions) {
         
         PDKClientFailure localFailureBlock = ^(NSError *error) {
             if (permissions != nil) {
-                [SSKeychain deletePasswordForService:PDKPinterestSDK account:PDKPinterestSDKUsername];
+                [SAMKeychain deletePasswordForService:PDKPinterestSDK account:PDKPinterestSDKUsername];
                 [weakSelf authenticateWithPermissions:permissions withSuccess:successBlock andFailure:failureBlock];
             } else if (failureBlock) {
                 failureBlock(error);
@@ -230,7 +230,7 @@ static NSString * const kPDKPinterestWebOAuthURLString = @"https://api.pinterest
 
 + (void)clearAuthorizedUser
 {
-    [SSKeychain deletePasswordForService:PDKPinterestSDK account:PDKPinterestSDKUsername];
+    [SAMKeychain deletePasswordForService:PDKPinterestSDK account:PDKPinterestSDKUsername];
 }
 
 - (BOOL)handleCallbackURL:(NSURL *)url
@@ -271,7 +271,7 @@ static NSString * const kPDKPinterestWebOAuthURLString = @"https://api.pinterest
                            [weakSelf recordTokenDetails:responseObject.parsedJSONDictionary];
                            
                            weakSelf.oauthToken = oauthToken;
-                           [SSKeychain setPassword:weakSelf.oauthToken forService:PDKPinterestSDK account:PDKPinterestSDKUsername];
+                           [SAMKeychain setPassword:weakSelf.oauthToken forService:PDKPinterestSDK account:PDKPinterestSDKUsername];
                            
                            [[PDKClient sharedInstance] getAuthorizedUserFields:[PDKUser allFields]
                                                                    withSuccess:^(PDKResponseObject *responseObject) {
